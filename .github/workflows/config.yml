@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ develop, master ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -25,3 +25,27 @@ jobs:
 
     - name: build
       run: ./bin/run.sh build
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '281.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Check build target
+        run: ./bin/check-build-target.sh
+
+      - name: install
+        run: ./bin/run.sh install
+
+      - name: build
+        run: ./bin/run.sh build
+
+      - name: deploy
+        run: ./bin/run.sh deploy
